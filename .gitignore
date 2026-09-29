@@ -33,6 +33,7 @@ logs
 
 # dsound
 /.Dynamic-Surroundings
+/.dyanmic-sounds
 
 # dot file
 /.bugs.txt

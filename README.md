@@ -92,6 +92,8 @@ public abstract class ItemLibraryMixin {
 
 原模组的 `effects/tools.json` 漏掉了 `#minecraft:pickaxes`，导致镐子无法被识别为工具。本模组用 `stack.is(ItemTags.PICKAXES)` 直接检查原版标签补齐。
 
+另外，原 `ItemSwingEffect#tick` 取挥动物品时写死了主手 `getItemInHand(MAIN_HAND)`，副手攻击时取不到副手武器、没有剑鸣，本模组用 `@ModifyVariable` 修正为按 `entity.swingingArm` 取物品（主手行为不变）。
+
 ---
 
 ## 特性
