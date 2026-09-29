@@ -1,6 +1,6 @@
 # Dynamic Surroundings Mixins
 
-一个针对 [Dynamic Surroundings (Expanded)](https://modrinth.com/mod/dynamicsurroundingsfabric) 的 **Mixin 补丁模组**，用于修复它在 Minecraft Forge 1.20.1 上无法正确识别部分模组工具/武器音效的问题。
+一个针对【Dynamic Surroundings (Expanded)】[Gitbub](https://github.com/astryxion/Dynamic-Surroundings)、[CurseForge](https://www.curseforge.com/minecraft/mc-mods/dynamic-surroundings-expanded) 的 **Mixin 补丁模组**，用于修复它在 Minecraft Forge 1.20.1 上无法正确识别部分模组工具/武器音效的问题。
 
 > 本模组**不修改** Dynamic Surroundings 的任何源码，而是通过 Mixin 在运行时注入补丁。
 
