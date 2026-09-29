@@ -36,3 +36,6 @@ logs
 
 # dot file
 /.bugs.txt
+
+# libs
+/libs

@@ -64,6 +64,13 @@ minecraft {
         configureEach {
             workingDirectory project.file('run')
 
+            // Remap the mixin refmap of third-party mods (e.g. Architectury, which is
+            // compiled by Loom) from production (obfuscated) names back to dev (Mojmap)
+            // names. Without this, such mods crash in the dev env with
+            // "InvalidInjectionException ... m_91374_()V ...".
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
             // "SCAN": For mods scan.
@@ -119,9 +126,11 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    // flatDir {
-    //     dir 'libs'
-    // }
+    // Dynamic Surroundings jar (compile dependency of the mixin): put
+    // "dynamicsurroundingsforge-1.20.1-1.3.1.jar" into ./libs
+    flatDir {
+        dir 'libs'
+    }
 }
 
 dependencies {
@@ -131,6 +140,23 @@ dependencies {
     // If the group id is "net.minecraft" and the artifact id is one of ["client", "server", "joined"],
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Mixin annotation processor. ForgeGradle wires the mapping data automatically.
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    // Dynamic Surroundings - compile + runtime dependency of our mixin.
+    // Place "dynamicsurroundingsforge-1.20.1-1.3.1.jar" into ./libs first.
+    implementation fg.deobf("dsurround:dynamicsurroundingsforge:1.20.1-1.3.1")
+
+    // Architectury API - prerequisite of Dynamic Surroundings.
+    // fg.deobf remaps the bytecode (incl. mixin @Shadow field names) back to Mojmap;
+    // the mixin.env.remapRefMap property below then fixes the leftover refmap entries.
+    implementation fg.deobf("architectury:architectury:9.2.14-forge")
+
+    // Tinkers' Construct 3 + Mantle - for verifying the fix. Production jars must
+    // be deobf'd with fg.deobf (NOT dropped into run/mods) in a 1.20.1 dev env.
+    implementation fg.deobf("slimeknights.mantle:Mantle:1.20.1-1.11.117")
+    implementation fg.deobf("slimeknights.tconstruct:TConstruct:1.20.1-3.11.2.166")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
@@ -177,7 +203,8 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Title'    : project.name,
                 'Implementation-Version'  : project.jar.archiveVersion,
                 'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'MixinConfigs'            : 'd_sound_mixins.mixins.json'
         ])
     }
 
